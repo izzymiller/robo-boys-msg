@@ -34,3 +34,25 @@
   background: transparent;
   outline-width: 0;
 }
+
+.sidebar__chats {
+  overflow: scroll;
+  overflow-x: hidden;
+}
+
+.sidebar__chats::-webkit-scrollbar {
+  width: 20px;
+}
+
+.sidebar__chats::-webkit-scrollbar-track {
+  background-color: #e4e4e4;
+  border-radius: 100px;
+}
+
+.sidebar__chats::-webkit-scrollbar-thumb {
+  border-radius: 100px;
+  border: 6px solid rgba(0, 0, 0, 0.18);
+  border-left: 0;
+  border-right: 0;
+  background-color: #bebebe;
+}

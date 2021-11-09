@@ -14,12 +14,13 @@ function App() {
   useEffect(() => {
     auth.onAuthStateChanged((authUser) => {
       if (authUser) {
+        console.log(authUser);
         dispatch(
           login({
             uid: authUser.uid,
             photo: authUser.photoURL,
             email: authUser.email,
-            displayName: authUser.displayNames,
+            displayName: authUser.displayName,
           })
         );
       } else {

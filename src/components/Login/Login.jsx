@@ -1,7 +1,11 @@
 import React from 'react';
 import './Login.css';
+import { auth, provider } from '../../firebase/config';
 
 function Login() {
+  const signIn = () => {
+    auth.signInWithPopup(provider).catch((err) => alert(err));
+  };
   return (
     <div className="login">
       <div className="login__logo">
@@ -11,7 +15,7 @@ function Login() {
         />
         <h1>iMessage</h1>
       </div>
-      <button>Sign In</button>
+      <button onClick={signIn}>Sign In</button>
     </div>
   );
 }

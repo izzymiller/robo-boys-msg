@@ -20,8 +20,9 @@ const Message = forwardRef(
         <Avatar src={photo} />
         <p>{message}</p>
         <small>
-          {moment(new Date(timestamp?.toDate()).toUTCString()).fromNow()}
+        <b>{displayName}</b> - {moment(new Date(timestamp?.toDate()).toUTCString()).fromNow()}
         </small>
+
       </div>
     );
   }

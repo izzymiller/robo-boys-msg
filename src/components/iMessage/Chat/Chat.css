@@ -1,22 +1,25 @@
 .chat {
   display: flex;
   flex-direction: column;
-  flex: 0.65;
+  flex: 1;
   height: 100vh;
   background-color: white;
 }
 
 .chat__header {
-  padding: 20px;
+  padding: 10px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   border-bottom: 1px solid lightgray;
   background-color: #f5f5f5;
 }
 
-.chat__header > h4 {
-  font-weight: 500;
-  color: gray;
+
+.chat__header {
+  font-family:monospace;
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
 }
 
 .chat__name {
@@ -26,6 +29,7 @@
 .chat__input {
   display: flex;
   align-items: center;
+  gap: 10px;
   padding: 10px 20px;
   border-top: 1px solid lightgray;
   background-color: #f5f5f5;
@@ -42,15 +46,40 @@
   padding: 5px;
 }
 
-.chat__input > form > button {
-  display: none;
+.chat__input > send__button {
+  flex: 1;
 }
+
 
 .chat__messages {
   flex: 1;
   overflow: scroll;
 }
 
+.chat__loading {
+  display: flex;
+  justify-content: center;
+}
+
+.chat__more_button {
+  display: flex;
+  height: 25px;
+  align-items: center;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 4px;
+  background-color: #1982FC;
+  color: white;
+  font-weight: 800;
+  border-width: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.chat__more_button:hover {
+  background-color: gainsboro;
+  color: #1982FC;
+}
 .chat__messages::-webkit-scrollbar {
   display: none;
 }

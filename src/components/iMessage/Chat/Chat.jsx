@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './Chat.css';
 import { IconButton } from '@material-ui/core';
-import MicNoneIcon from '@material-ui/icons/MicNone';
+import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
+
 import Message from './Message/Message';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../../../features/userSlice';
@@ -13,23 +14,104 @@ import FlipMove from 'react-flip-move';
 function Chat() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
+  const [lastMessage,setLastMessage] = useState(false)
+  const [nextPosts_loading, setNextPostsLoading] = useState(false);
+  const [mostRecentMessageType, setMostRecentMessageType] = useState('new')
+  const [containerStatus, setContainerStatus] = useState('sleeping')
   const user = useSelector(selectUser);
-  const chatName = useSelector(selectChatName);
-  const chatId = useSelector(selectChatId);
-  console.log(user);
-  useEffect(() => {
-    if (chatId) {
+  // const chatName = useSelector(selectChatName);
+  const chatName = 'robo boys' //hardcode this for now, just one chat
+  // const chatId = useSelector(selectChatId);
+  const chatId = 'rHGTegWba1tDsNvZ6yc1' //hardcode this for now, just one chat
+  const lastMsgRef = useRef(null)
+  const firstMsgRef = useRef(null)
+
+  const updateContainerStatus = () => {
+    fetch('https://izzymiller--alive.modal.run/')
+        .then(response => response.json())
+        .then(data => {
+          if(data.num_total_runners === 0) {
+            setContainerStatus('asleep')
+          } else if(data.num_active_runners >= 1) {
+            setContainerStatus('awake')
+          } else if(data.backlog === 0 ) {
+            setContainerStatus('starting')
+          }
+        });
+  }
+
+  const firstPosts = () => {
+    try {
+      db.collection('chats')
+      .doc(chatId)
+      .collection('messages')
+      .orderBy('timestamp', 'desc').limit(50)
+      .onSnapshot((snapshot) =>{
+        const d = snapshot.docs.reverse()
+        setMessages(
+          d.map((doc) => ({ id: doc.id, data: doc.data() }))
+        )
+        setLastMessage(
+          d[0].data().timestamp
+        )
+        setMostRecentMessageType('new')
+      }
+        
+      );
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  const nextPosts = (key) => {
+    setNextPostsLoading(true);
+    try {
       db.collection('chats')
         .doc(chatId)
         .collection('messages')
-        .orderBy('timestamp', 'asc')
-        .onSnapshot((snapshot) =>
+        .orderBy('timestamp', 'desc')
+        .startAfter(key)
+        .limit(25)
+        .onSnapshot((snapshot) => {
+          const newMsgs = snapshot.docs.reverse().map((doc) => ({ id: doc.id, data: doc.data() }))
           setMessages(
-            snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() }))
-          )
+            [...newMsgs,...messages ]
+            )
+            console.log(newMsgs)
+            setLastMessage(
+              newMsgs[0].data.timestamp
+            )
+        }
         );
+        setMostRecentMessageType('old')
+        setNextPostsLoading(false);
+    } catch (e) {
+      console.log(e);
+      setNextPostsLoading(false);
+    }
+  }
+  
+  useEffect(() => {
+    if (chatId) {
+      firstPosts();
     }
   }, [chatId]);
+
+
+  const scrollToBottom = () => {
+    lastMsgRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+  const scrollToTop = () => {
+    firstMsgRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    if(mostRecentMessageType === 'new'){
+      scrollToBottom()
+    } else {
+      scrollToTop()
+    }
+  }, [messages]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -42,40 +124,55 @@ function Chat() {
       displayName: user.displayName,
     });
     setInput('');
+    return false
   };
 
   return (
     <div className="chat">
       <div className="chat__header">
-        <h4>
-          To: <span className="chat__name">{chatName}</span>
-        </h4>
-        <strong>Details</strong>
+        <div className="header__icon">
+          <p>🤖</p>
+        <p>
+          {chatName} 
+        </p>
+        </div>
+       
       </div>
 
       {/* Chat  messages */}
       <div className="chat__messages">
+      <div className='chat__loading'  ref={firstMsgRef}>
+        {nextPosts_loading ? (
+          <p>Loading..</p>
+        ) : lastMessage ? (
+          <button className='chat__more_button' onClick={() => nextPosts(lastMessage)}>Load older messages</button>
+        ) : (
+          <span>No more messages</span>
+        )}
+      </div>
         <FlipMove>
           {messages.map(({ id, data }) => (
             <Message key={id} id={id} contents={data} />
           ))}
         </FlipMove>
+        <div ref={lastMsgRef} />
       </div>
 
       {/* Chat  input*/}
       <div className="chat__input">
-        <form>
+        <form method="POST" onSubmit={(e) => sendMessage(e)}>
           <input
             type="text"
             placeholder="iMessage"
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
-          <button onClick={sendMessage}>Send Message</button>
         </form>
-        <IconButton>
-          <MicNoneIcon />
+        <div className='send__button'>
+        <IconButton size="small" color="primary" onClick={sendMessage}>
+          <ArrowCircleUpIcon />
         </IconButton>
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import Sidebar from './Sidebar/Sidebar';
 function Imessage() {
   return (
     <div className="iMessage">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <Chat />
     </div>
   );

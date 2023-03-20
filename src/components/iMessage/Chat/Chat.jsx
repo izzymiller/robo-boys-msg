@@ -17,7 +17,7 @@ function Chat() {
   const [lastMessage,setLastMessage] = useState(false)
   const [nextPosts_loading, setNextPostsLoading] = useState(false);
   const [mostRecentMessageType, setMostRecentMessageType] = useState('new')
-  const [containerStatus, setContainerStatus] = useState('sleeping')
+  const [containerStatus, setContainerStatus] = useState('asleep')
   const user = useSelector(selectUser);
   // const chatName = useSelector(selectChatName);
   const chatName = 'robo boys' //hardcode this for now, just one chat
@@ -32,12 +32,17 @@ function Chat() {
         .then(data => {
           if(data.num_total_runners === 0) {
             setContainerStatus('asleep')
-          } else if(data.num_active_runners >= 1) {
+          } else if(data.num_total_runners >= 1 && data.backlog === 0) {
             setContainerStatus('awake')
-          } else if(data.backlog === 0 ) {
-            setContainerStatus('starting')
+          } else if(data.backlog === 1 ) {
+            setContainerStatus('waking up')
           }
         });
+  }
+
+  const wakeContainer = () => {
+
+    fetch('https://izzymiller--wake.modal.run/').then(setContainerStatus('waking up'))
   }
 
   const firstPosts = () => {
@@ -77,7 +82,6 @@ function Chat() {
           setMessages(
             [...newMsgs,...messages ]
             )
-            console.log(newMsgs)
             setLastMessage(
               newMsgs[0].data.timestamp
             )
@@ -94,8 +98,17 @@ function Chat() {
   useEffect(() => {
     if (chatId) {
       firstPosts();
+      updateContainerStatus();
     }
   }, [chatId]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateContainerStatus();
+    }, 5000);
+  
+    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+  }, [])
 
 
   const scrollToBottom = () => {
@@ -103,6 +116,22 @@ function Chat() {
   }
   const scrollToTop = () => {
     firstMsgRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  const Status = () => {
+    if(containerStatus == 'awake') {
+      return  (<div className='bot__status'>
+        <p>bot status: <b>awake</b></p>
+      </div>)
+    } else if(containerStatus == 'asleep') {
+      return(
+        <div className='bot__status'>
+      <p>bot status: <b>asleep. <p onClick={() => {wakeContainer()}}>wake them up?</p></b></p>
+      </div>
+      )
+    } else if(containerStatus == 'waking up') {
+      return (<div className='bot__status'><p>bot status: <b>waking up</b>. May take up to 5 minutes</p></div>)
+    }
   }
 
   useEffect(() => {
@@ -135,6 +164,7 @@ function Chat() {
         <p>
           {chatName} 
         </p>
+        <Status />
         </div>
        
       </div>

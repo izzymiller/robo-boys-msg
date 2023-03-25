@@ -1,6 +1,6 @@
 .message {
   display: flex;
-  max-width: 50vw;
+  max-width: 90vw;
   align-items: center;
   position: relative;
   width: fit-content;
@@ -13,7 +13,7 @@
   font-size: medium;
   padding: 15px;
   border-radius: 20px;
-  max-width: 50vw;
+  max-width: 90vw;
   margin: 10px;
   margin-right: auto;
   word-wrap: break-word;

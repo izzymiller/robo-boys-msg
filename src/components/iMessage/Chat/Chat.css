@@ -69,6 +69,11 @@
   justify-content: center;
 }
 
+.wakeup {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .chat__more_button {
   display: flex;
   height: 25px;

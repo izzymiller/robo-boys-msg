@@ -32,9 +32,9 @@ function Chat() {
         .then(data => {
           if(data.num_total_runners === 0) {
             setContainerStatus('asleep')
-          } else if(data.num_total_runners >= 1 && data.backlog === 0) {
+          } else if(data.num_total_runners >= 1) {
             setContainerStatus('awake')
-          } else if(data.backlog === 1 ) {
+          } else if(data.backlog >= 1 ) {
             setContainerStatus('waking up')
           }
         });
@@ -126,7 +126,7 @@ function Chat() {
     } else if(containerStatus == 'asleep') {
       return(
         <div className='bot__status'>
-      <p>bot status: <b>asleep. <p onClick={() => {wakeContainer()}}>wake them up?</p></b></p>
+      <p>bot status: <b>asleep. <p className='wakeup' onClick={() => {wakeContainer()}}>wake them up?</p></b></p>
       </div>
       )
     } else if(containerStatus == 'waking up') {

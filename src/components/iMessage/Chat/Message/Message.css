@@ -1,23 +1,45 @@
 .message {
   display: flex;
   max-width: 90vw;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
   width: fit-content;
   justify-content: space-between;
   margin: 15px;
 }
 
-.message > p {
+.message__content {
+  position: relative;
+  margin: 10px;
+  margin-right: auto;
+}
+
+.message__content > p {
   background-color: #f3f3f5;
   font-size: medium;
   padding: 15px;
   border-radius: 20px;
   max-width: 90vw;
-  margin: 10px;
-  margin-right: auto;
   word-wrap: break-word;
+  margin: 0;
+}
 
+.message__reactions {
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  display: flex;
+  gap: 4px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 2px 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.message__reaction {
+  font-size: 12px;
+  cursor: default;
 }
 
 .message > small {
@@ -32,16 +54,12 @@
   margin-left: auto;
 }
 
-.message__sender > .message__photo {
-  order: 1;
-  margin: 15px;
-}
-
-.message__photo {
-  order: 0;
-}
-
-.message__sender > p {
+.message__sender .message__content > p {
   background-color: #3cabfa;
   color: white;
+}
+
+.message__sender .message__reactions {
+  right: 0;
+  left: auto;
 }

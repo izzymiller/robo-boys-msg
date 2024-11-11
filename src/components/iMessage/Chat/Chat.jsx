@@ -45,29 +45,60 @@ function Chat() {
   //   fetch('https://izzymiller--wake.modal.run/').then(setContainerStatus('waking up'))
   // }
 
+  const processMessages = (messages) => {
+    const processedMessages = new Map();
+    
+    messages.forEach(({ id, data }) => {
+      const reactionMatch = data.message.match(/^(Loved|Laughed at|Liked|Emphasized|Disliked) "(.+)"$/);
+      
+      if (reactionMatch) {
+        const [_, type, targetMessage] = reactionMatch;
+        
+        // Find the message being reacted to
+        for (let [msgId, msgData] of processedMessages) {
+          if (msgData.contents.message === targetMessage) {
+            const reactions = msgData.reactions || [];
+            reactions.push({
+              type,
+              from: data.displayName,
+              timestamp: data.timestamp
+            });
+            msgData.reactions = reactions;
+            break;
+          }
+        }
+      } else {
+        processedMessages.set(id, {
+          id,
+          contents: data,
+          reactions: []
+        });
+      }
+    });
+    
+    return Array.from(processedMessages.values());
+  };
+
   const firstPosts = () => {
     try {
       db.collection('chats')
       .doc(chatId)
       .collection('messages')
       .orderBy('timestamp', 'desc').limit(50)
-      .onSnapshot((snapshot) =>{
-        const d = snapshot.docs.reverse()
-        setMessages(
+      .onSnapshot((snapshot) => {
+        const d = snapshot.docs.reverse();
+        const processedMsgs = processMessages(
           d.map((doc) => ({ id: doc.id, data: doc.data() }))
-        )
-        setLastMessage(
-          d[0].data().timestamp
-        )
-        setMostRecentMessageType('new')
-      }
-        
-      );
+        );
+        setMessages(processedMsgs);
+        setLastMessage(d[0].data().timestamp);
+        setMostRecentMessageType('new');
+      });
     } catch(e) {
-      console.log(e)
+      console.log(e);
     }
-  }
-
+  };
+  
   const nextPosts = (key) => {
     setNextPostsLoading(true);
     try {
@@ -78,22 +109,19 @@ function Chat() {
         .startAfter(key)
         .limit(25)
         .onSnapshot((snapshot) => {
-          const newMsgs = snapshot.docs.reverse().map((doc) => ({ id: doc.id, data: doc.data() }))
-          setMessages(
-            [...newMsgs,...messages ]
-            )
-            setLastMessage(
-              newMsgs[0].data.timestamp
-            )
-        }
-        );
-        setMostRecentMessageType('old')
+          const newMsgs = snapshot.docs.reverse().map((doc) => ({ id: doc.id, data: doc.data() }));
+          const allMessages = [...newMsgs, ...messages];
+          const processedMsgs = processMessages(allMessages);
+          setMessages(processedMsgs);
+          setLastMessage(newMsgs[0].data.timestamp);
+        });
+        setMostRecentMessageType('old');
         setNextPostsLoading(false);
     } catch (e) {
       console.log(e);
       setNextPostsLoading(false);
     }
-  }
+  };
   
   useEffect(() => {
     if (chatId) {

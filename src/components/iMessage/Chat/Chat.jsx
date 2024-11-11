@@ -26,24 +26,24 @@ function Chat() {
   const lastMsgRef = useRef(null)
   const firstMsgRef = useRef(null)
 
-  const updateContainerStatus = () => {
-    fetch('https://izzymiller--alive.modal.run/')
-        .then(response => response.json())
-        .then(data => {
-          if(data.num_total_runners === 0) {
-            setContainerStatus('asleep')
-          } else if(data.num_total_runners >= 1) {
-            setContainerStatus('awake')
-          } else if(data.backlog >= 1 ) {
-            setContainerStatus('waking up')
-          }
-        });
-  }
+  // const updateContainerStatus = () => {
+  //   fetch('https://izzymiller--alive.modal.run/')
+  //       .then(response => response.json())
+  //       .then(data => {
+  //         if(data.num_total_runners === 0) {
+  //           setContainerStatus('asleep')
+  //         } else if(data.num_total_runners >= 1) {
+  //           setContainerStatus('awake')
+  //         } else if(data.backlog >= 1 ) {
+  //           setContainerStatus('waking up')
+  //         }
+  //       });
+  // }
 
-  const wakeContainer = () => {
+  // const wakeContainer = () => {
 
-    fetch('https://izzymiller--wake.modal.run/').then(setContainerStatus('waking up'))
-  }
+  //   fetch('https://izzymiller--wake.modal.run/').then(setContainerStatus('waking up'))
+  // }
 
   const firstPosts = () => {
     try {
@@ -98,17 +98,17 @@ function Chat() {
   useEffect(() => {
     if (chatId) {
       firstPosts();
-      updateContainerStatus();
+      // updateContainerStatus();
     }
   }, [chatId]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      updateContainerStatus();
-    }, 5000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     updateContainerStatus();
+  //   }, 5000);
   
-    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-  }, [])
+  //   return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+  // }, [])
 
 
   const scrollToBottom = () => {
@@ -119,20 +119,10 @@ function Chat() {
   }
 
   const Status = () => {
-    if(containerStatus == 'awake') {
       return  (<div className='bot__status'>
         <p>bot status: <b>awake</b></p>
       </div>)
-    } else if(containerStatus == 'asleep') {
-      return(
-        <div className='bot__status'>
-      <p>bot status: <b>asleep. <p className='wakeup' onClick={() => {wakeContainer()}}>wake them up?</p></b></p>
-      </div>
-      )
-    } else if(containerStatus == 'waking up') {
-      return (<div className='bot__status'><p>bot status: <b>waking up</b>. May take up to 5 minutes</p></div>)
     }
-  }
 
   useEffect(() => {
     if(mostRecentMessageType === 'new'){
